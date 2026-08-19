@@ -1,0 +1,18 @@
+{
+    "workbench.colorCustomizations": {
+        ///////////////////////////////////
+        "window.activeBorder": "#ff2424",
+        ///////////////////////////////////
+        "activityBar.background": "#924700",
+        "activityBar.foreground": "#d2d2d2",
+        "activityBar.inactiveForeground": "#ffffff",
+        ///////////////////////////////////
+        "titleBar.activeBackground": "#924700",
+        "titleBar.activeForeground": "#ffffff",
+        "titleBar.inactiveBackground": "#924700",
+        "titleBar.inactiveForeground": "#ffffff",
+        "titleBar.foreground": "#ffffff"
+        ///////////////////////////////////
+    },
+    "window.title": "📦 ${rootName} | ${activeEditorShort}${separator}${dirty}"
+}
