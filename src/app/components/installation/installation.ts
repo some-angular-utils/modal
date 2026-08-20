@@ -7,7 +7,8 @@ import { Component } from '@angular/core';
 export class InstallationComponent {
   installSnippet = `npm install @some-angular-utils/modal`;
 
-  importSnippet = `import { SAUModalService, DeleteModalComponent } from '@some-angular-utils/modal';
+  importSnippet = `import { SAUModalService } from '@some-angular-utils/modal';
+import { ConfirmDialogComponent } from './confirm-dialog.component';
 
 @Component({
   // ...
@@ -18,7 +19,9 @@ export class CompaniesComponent {
 }`;
 
   usageSnippet = `deleteCompany(company: Company) {
-  const modalRef = this.sauModalService.open(DeleteModalComponent, {});
+  // ConfirmDialogComponent is just a component you wrote — the service
+  // doesn't ship one for you, it opens whatever you pass it.
+  const modalRef = this.sauModalService.open(ConfirmDialogComponent, {});
   modalRef.componentInstance.name = company.name;
   modalRef.componentInstance.entity = 'Company';
 

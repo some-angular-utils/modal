@@ -52,10 +52,13 @@
           <span class="h-2.5 w-2.5 rounded-full bg-red-400"></span>
           <span class="h-2.5 w-2.5 rounded-full bg-yellow-400"></span>
           <span class="h-2.5 w-2.5 rounded-full bg-green-400"></span>
-          <span class="ml-2 font-mono text-xs text-gray-400">companies.component.html</span>
+          <span class="ml-2 font-mono text-xs text-gray-400">app.component.html</span>
         </div>
-        <div class="rounded-xl bg-gray-50 py-4">
-          <sau-delete-modal name="Acme Corp" entity="Company"></sau-delete-modal>
+        <div class="flex items-center justify-center rounded-xl bg-gray-50 py-16">
+          <button type="button" (click)="openDemo()"
+            class="cursor-pointer rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800">
+            Open modal
+          </button>
         </div>
       </div>
     </div>

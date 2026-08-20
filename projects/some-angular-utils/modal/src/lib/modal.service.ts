@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { ApplicationRef, EnvironmentInjector, Injectable, Injector, Type, createComponent, inject } from '@angular/core';
 
-import { ModalContainerComponent } from './modal-container/modal-container.component';
+import { SAUModalComponent } from './sau-modal/sau-modal.component';
 import { ModalOptions } from './modal-options';
 import { ModalRef } from './modal-ref';
 
@@ -21,7 +21,7 @@ export class SAUModalService {
   open<T>(component: Type<T>, options: ModalOptions = {}): ModalRef<T> {
     const modalRef = new ModalRef<T>();
 
-    const containerRef = createComponent(ModalContainerComponent, {
+    const containerRef = createComponent(SAUModalComponent, {
       environmentInjector: this.environmentInjector,
       elementInjector: this.injector,
     });
@@ -63,7 +63,7 @@ export class SAUModalService {
       this.appRef.detachView(containerRef.hostView);
       containerRef.destroy();
       nativeElement.remove();
-      if (!this.document.querySelector('sau-modal-container')) {
+      if (!this.document.querySelector('sau-modal')) {
         this.document.body.style.overflow = this.previousBodyOverflow ?? '';
         this.previousBodyOverflow = null;
       }

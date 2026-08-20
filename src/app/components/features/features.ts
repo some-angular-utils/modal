@@ -37,9 +37,9 @@ export class FeaturesComponent {
       icon: 'M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6l1.4 1.4m10 10l1.4 1.4M18.4 5.6L17 7m-10 10l-1.4 1.4',
     },
     {
-      title: 'Delete confirmation, ready to wire',
+      title: 'Bring your own component',
       description:
-        'DeleteModalComponent ships in the package — set name and entity, hook it to a table\'s deleteEvent, done.',
+        'The package doesn\'t ship a dialog for you — it opens whatever component you already wrote, styled however you like.',
       icon: 'M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z',
     },
     {

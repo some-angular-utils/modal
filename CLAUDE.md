@@ -3,7 +3,7 @@
 Contexto para trabajar en este repo. Es un workspace de Angular con dos proyectos, con la misma estructura que el repo hermano `table` (`@some-angular-utils/table`):
 
 - **`modal`** (`src/app`) — la landing page/showcase de la librería. No es un producto real, no tiene backend.
-- **`@some-angular-utils/modal`** (`projects/some-angular-utils/modal`) — la librería Angular publicable de verdad (`SAUModalService` + `DeleteModalComponent`).
+- **`@some-angular-utils/modal`** (`projects/some-angular-utils/modal`) — la librería Angular publicable de verdad (`SAUModalService` + el shell `SAUModalComponent` interno). No ships ningún componente de diálogo propio: `open()` recibe cualquier componente que le pases tú.
 
 ## Árbol del código
 
@@ -23,10 +23,13 @@ modal/
 │       ├── app.ts / app.html / app.scss / app.config.ts / app.routes.ts
 │       └── components/
 │           ├── navbar/         navbar.ts                — barra superior fija
-│           ├── hero/            hero.ts, hero.html        — sección de portada, renderiza <sau-delete-modal> inline
+│           ├── hero/            hero.ts, hero.html        — sección de portada, botón "Open modal" que llama a sauModalService.open(AlertDialogComponent) de verdad
 │           ├── features/        features.ts, features.html — grid de características
 │           ├── demos/           demos.ts, demos.html       — "See it in action": demos editables en vivo + una lista interactiva
 │           ├── code-editor/     code-editor.ts/html/scss   — mini editor de código reutilizable (usado por demos)
+│           ├── confirm-dialog/  confirm-dialog.ts          — ConfirmDialogComponent, componente de contenido de ejemplo (vive en la app, NO en la librería)
+│           ├── rename-dialog/   rename-dialog.ts           — RenameDialogComponent, otro componente de contenido de ejemplo (un form, resuelve con texto)
+│           ├── alert-dialog/    alert-dialog.ts            — AlertDialogComponent, otro más (un solo botón, sin cancelación) — junto a los dos anteriores demuestran "trae tu propio componente"
 │           ├── installation/    installation.ts, installation.html — instrucciones de instalación/uso
 │           └── footer/          footer.ts                  — pie de página
 │
@@ -37,25 +40,25 @@ modal/
             ├── modal.service.ts                # SAUModalService.open() — crea el contenedor con createComponent() y lo cuelga de <body>
             ├── modal-ref.ts                     # ModalRef — componentInstance + result (Promise), close()/dismiss()
             ├── modal-options.ts                 # ModalOptions — size / backdrop / keyboard
-            ├── modal-container/                 # componente interno: backdrop + diálogo centrado + host de contenido dinámico
-            ├── delete-modal/                    # DeleteModalComponent — diálogo de confirmación genérico (name/entity)
-            └── icons/                           # trash/xmark como componentes standalone (encapsulation por defecto, no None)
+            └── sau-modal/                       # SAUModalComponent (interno, no exportado): backdrop + diálogo centrado + host de contenido dinámico
 ```
 
 ## Cómo funciona `SAUModalService.open()`
 
 No requiere ningún anchor/host en la app (nada de `<router-outlet>`-style placeholder ni NgModule). `open(Component, options)`:
 
-1. Crea `ModalContainerComponent` con `createComponent()` + lo adjunta a `ApplicationRef` (`attachView`) y lo cuelga directamente de `document.body`.
+1. Crea `SAUModalComponent` (el shell interno, en `lib/sau-modal/`) con `createComponent()` + lo adjunta a `ApplicationRef` (`attachView`) y lo cuelga directamente de `document.body`.
 2. Fuerza un `detectChanges()` inicial para que el `ViewChild` estático (`contentHost`, un `ViewContainerRef`) y el nodo DOM existan de forma síncrona antes de seguir.
-3. Crea el componente pedido dentro de `contentHost`, con un injector hijo que provee `ModalRef` — así el componente montado puede hacer `inject(ModalRef)` para cerrarse a sí mismo (ver `delete-modal.component.ts`).
+3. Crea el componente pedido dentro de `contentHost`, con un injector hijo que provee `ModalRef` — así el componente montado puede hacer `inject(ModalRef)` para cerrarse a sí mismo (ver `src/app/components/confirm-dialog/confirm-dialog.ts` como ejemplo de componente de contenido; la librería no ships ninguno propio).
 4. Devuelve un `ModalRef`: `componentInstance` (la instancia recién creada, para setear `@Input()`s justo después de `open()`) y `result` (una promise que resuelve con `close(valor)` y rechaza con `dismiss(razon)`), replicando la API clásica de `NgbModalRef` (`modalRef.componentInstance.x = y; modalRef.result.then(onConfirm, onCancel)`).
 
 ## Bug real encontrado y corregido: `:host` no funciona con `ViewEncapsulation.None`
 
-`ModalContainerComponent` y `DeleteModalComponent` usan `encapsulation: ViewEncapsulation.None` (igual que `table.ts` en el repo hermano, para permitir custom properties CSS globales sin rebuild). **Con `ViewEncapsulation.None`, Angular no reescribe el selector `:host`** — al no haber scoping, el compilador simplemente concatena el CSS tal cual como una hoja de estilos global, y `:host` no es un selector CSS válido fuera de ese contexto, así que nunca matchea nada. Confirmado probando en el navegador: un `ModalContainerComponent` con `:host { position: fixed; inset: 0; ... }` se renderizaba sin overlay visible en absoluto (el diálogo terminaba en flujo normal al final de `<body>`, invisible en el viewport).
+`SAUModalComponent` usa `encapsulation: ViewEncapsulation.None` (igual que `table.ts` en el repo hermano, para permitir custom properties CSS globales sin rebuild). **Con `ViewEncapsulation.None`, Angular no reescribe el selector `:host`** — al no haber scoping, el compilador simplemente concatena el CSS tal cual como una hoja de estilos global, y `:host` no es un selector CSS válido fuera de ese contexto, así que nunca matchea nada. Confirmado probando en el navegador: un `SAUModalComponent` con `:host { position: fixed; inset: 0; ... }` se renderizaba sin overlay visible en absoluto (el diálogo terminaba en flujo normal al final de `<body>`, invisible en el viewport).
 
-La solución (y el patrón ya usado por `table.scss` vía la clase `.sau-table`) es **nunca usar `:host` en un componente con `encapsulation: None`** — hay que apuntar directamente al nombre de la etiqueta del propio host (`sau-modal-container { ... }`, ya que el nombre de la etiqueta HTML real coincide con el selector del componente) o a una clase en la raíz de la plantilla (`.sau-delete-modal { ... }`, como hace `DeleteModalComponent` para sus custom properties). Si en el futuro se añade un componente nuevo con `encapsulation: None`, no usar `:host` ahí tampoco.
+La solución (y el patrón ya usado por `table.scss` vía la clase `.sau-table`) es **nunca usar `:host` en un componente con `encapsulation: None`** — hay que apuntar directamente al nombre de la etiqueta del propio host (`sau-modal { ... }`, ya que el nombre de la etiqueta HTML real coincide con el selector del componente). Si en el futuro se añade un componente nuevo con `encapsulation: None`, no usar `:host` ahí tampoco.
+
+`ConfirmDialogComponent` (`src/app/components/confirm-dialog`), el componente de contenido de ejemplo del showcase, usa encapsulation por defecto — no necesita `None`, porque los custom properties CSS de `sau-modal` heredan igualmente al contenido proyectado dentro (la herencia de custom properties es puramente DOM/CSS, no depende de shadow DOM ni de cómo Angular scopéa los estilos del propio componente hijo).
 
 ## El orden de build importa
 
@@ -69,11 +72,13 @@ npm run build:lib   # ng-packagr -> dist/some-angular-utils/modal
 
 ## Cómo funciona el editor de las demos en vivo (`src/app/components/demos`)
 
-Sigue el mismo patrón que el repo `table`: cada pestaña "js"/"css" tiene su propio mini editor de código (`src/app/components/code-editor`), enlazado a un string de configuración. Al editar (debounce ~600ms), el texto se evalúa con `new Function('"use strict"; return (' + texto + ');')()` — mismo modelo de confianza que un playground de JS (CodePen/StackBlitz), es intencional. El objeto resultante (`demo.parsed()`) alimenta el botón "Open modal" de cada pestaña, que llama a `sauModalService.open(DeleteModalComponent, { size, backdrop, keyboard })` y setea `componentInstance.name/entity`.
+Sigue el mismo patrón que el repo `table`: cada pestaña "js"/"css" tiene su propio mini editor de código (`src/app/components/code-editor`), enlazado a un string de configuración. Al editar (debounce ~600ms), el texto se evalúa con `new Function('"use strict"; return (' + texto + ');')()` — mismo modelo de confianza que un playground de JS (CodePen/StackBlitz), es intencional. El objeto resultante (`demo.parsed()`) alimenta el botón "Open modal" de cada pestaña.
 
-La pestaña **"list"** es de tipo `interactive` (no tiene editor de código): es el caso de uso real, una tabla de compañías con un botón "Delete" por fila que abre el modal y, al confirmar, quita la fila de `listItems` (un signal mutado directamente, no derivado de config evaluada).
+Las pestañas **"basic"/"sizes"/"backdrop"** abren `ConfirmDialogComponent` (`src/app/components/confirm-dialog`) con distinto `ModalOptions`/`name`/`entity`. Las pestañas **"form"** y **"alert"** abren, a propósito, componentes de contenido totalmente distintos — `RenameDialogComponent` (`src/app/components/rename-dialog`, resuelve `result` con el texto tecleado) y `AlertDialogComponent` (`src/app/components/alert-dialog`, un solo botón, sin cancelación) — para dejar claro en el showcase que `open()` no ships ni asume ninguna forma de componente concreta.
 
-La pestaña **"theme"** inyecta el CSS dinámico vía `Renderer2` + `DOCUMENT` (un único `<style>` creado en el constructor, actualizado dentro de un `effect()`, eliminado en `ngOnDestroy`) apuntando a `sau-modal-container, .sau-delete-modal { ... }` — **no** a un `<style [textContent]>` literal en la plantilla, porque Angular extrae las etiquetas `<style>` de las plantillas en tiempo de compilación y un binding de propiedad ahí nunca llega al DOM en runtime (mismo gotcha documentado en el CLAUDE.md de `table`).
+La pestaña **"list"** es de tipo `interactive` (no tiene editor de código): es el caso de uso real, una tabla de compañías con un botón "Delete" por fila que abre `ConfirmDialogComponent` y, al confirmar, quita la fila de `listItems` (un signal mutado directamente, no derivado de config evaluada).
+
+La pestaña **"theme"** inyecta el CSS dinámico vía `Renderer2` + `DOCUMENT` (un único `<style>` creado en el constructor, actualizado dentro de un `effect()`, eliminado en `ngOnDestroy`) apuntando a `sau-modal, .app-confirm-dialog, .app-rename-dialog, .app-alert-dialog { ... }` (los tres componentes de contenido a la vez, para que la re-tematización sea consistente sin importar cuál esté abierto) — **no** a un `<style [textContent]>` literal en la plantilla, porque Angular extrae las etiquetas `<style>` de las plantillas en tiempo de compilación y un binding de propiedad ahí nunca llega al DOM en runtime (mismo gotcha documentado en el CLAUDE.md de `table`).
 
 ## Tailwind v4
 

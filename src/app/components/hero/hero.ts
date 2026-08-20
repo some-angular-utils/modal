@@ -1,21 +1,25 @@
-import { Component, signal } from '@angular/core';
-import { DeleteModalComponent, ModalRef } from '@some-angular-utils/modal';
+import { Component, inject, signal } from '@angular/core';
+import { SAUModalService } from '@some-angular-utils/modal';
+import { AlertDialogComponent } from '../alert-dialog/alert-dialog';
 
 @Component({
   selector: 'app-hero',
-  imports: [DeleteModalComponent],
-  // The hero preview renders <sau-delete-modal> inline (not through SAUModalService) so it
-  // sits inside the mock browser card instead of a full-page overlay. DeleteModalComponent
-  // injects ModalRef itself, so a throwaway instance is provided here just to satisfy that.
-  providers: [{ provide: ModalRef, useValue: new ModalRef() }],
   templateUrl: './hero.html',
 })
 export class HeroComponent {
+  private sauModalService = inject(SAUModalService);
+
   copied = signal(false);
 
   copyInstall() {
     navigator.clipboard?.writeText('npm install @some-angular-utils/modal');
     this.copied.set(true);
     setTimeout(() => this.copied.set(false), 1500);
+  }
+
+  openDemo(): void {
+    const modalRef = this.sauModalService.open(AlertDialogComponent, {});
+    modalRef.componentInstance.title = 'It works!';
+    modalRef.componentInstance.message = 'This dialog was opened with a single SAUModalService.open() call.';
   }
 }

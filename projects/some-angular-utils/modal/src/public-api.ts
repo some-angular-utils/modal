@@ -5,4 +5,3 @@
 export * from './lib/modal.service';
 export * from './lib/modal-ref';
 export * from './lib/modal-options';
-export * from './lib/delete-modal/delete-modal.component';

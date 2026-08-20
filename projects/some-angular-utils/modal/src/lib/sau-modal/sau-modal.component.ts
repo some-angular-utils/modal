@@ -1,7 +1,7 @@
 import { Component, ElementRef, EventEmitter, HostListener, Output, ViewChild, ViewContainerRef, ViewEncapsulation, Input } from '@angular/core';
 
 @Component({
-  selector: 'sau-modal-container',
+  selector: 'sau-modal',
   encapsulation: ViewEncapsulation.None,
   template: `
     <div class="sau-modal-backdrop" (click)="onBackdropClick()"></div>
@@ -16,11 +16,10 @@ import { Component, ElementRef, EventEmitter, HostListener, Output, ViewChild, V
   // encapsulation is None (same reason as sau-table: dynamic runtime theming needs plain
   // global CSS custom properties), which means Angular does NOT rewrite `:host` — it isn't
   // shimmed to anything and never matches. Style the host element via its own tag name
-  // (`sau-modal-container`) instead, same pattern table.scss uses via a `.sau-table` class.
+  // (`sau-modal`) instead, same pattern table.scss uses via a `.sau-table` class.
   styles: [`
-    sau-modal-container {
+    sau-modal {
       --sau-color-primary: rgb(147, 51, 234);
-      --sau-color-delete: rgb(239, 68, 68);
       --sau-color-background: rgb(255, 255, 255);
       --sau-color-text: rgb(31, 41, 55);
 
@@ -72,7 +71,7 @@ import { Component, ElementRef, EventEmitter, HostListener, Output, ViewChild, V
     }
   `]
 })
-export class ModalContainerComponent {
+export class SAUModalComponent {
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
   @Input() backdrop: boolean | 'static' = true;
   @Input() keyboard = true;
