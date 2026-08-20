@@ -7,18 +7,18 @@ import { Component } from '@angular/core';
 export class InstallationComponent {
   installSnippet = `npm install @some-angular-utils/modal`;
 
-  importSnippet = `import { ModalService, DeleteModalComponent } from '@some-angular-utils/modal';
+  importSnippet = `import { SAUModalService, DeleteModalComponent } from '@some-angular-utils/modal';
 
 @Component({
   // ...
 })
 export class CompaniesComponent {
-  private modalService = inject(ModalService);
+  private sauModalService = inject(SAUModalService);
   // ...
 }`;
 
   usageSnippet = `deleteCompany(company: Company) {
-  const modalRef = this.modalService.open(DeleteModalComponent, {});
+  const modalRef = this.sauModalService.open(DeleteModalComponent, {});
   modalRef.componentInstance.name = company.name;
   modalRef.componentInstance.entity = 'Company';
 

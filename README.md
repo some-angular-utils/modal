@@ -27,15 +27,15 @@ Then open http://localhost:4200.
 
 ## IMPORT
 ```ts
-import { ModalService, DeleteModalComponent } from '@some-angular-utils/modal';
+import { SAUModalService, DeleteModalComponent } from '@some-angular-utils/modal';
 ```
 
 ## TYPESCRIPT
 ```ts
-private modalService = inject(ModalService);
+private sauModalService = inject(SAUModalService);
 
 deleteCompany(company: Company) {
-  const modalRef = this.modalService.open(DeleteModalComponent, {});
+  const modalRef = this.sauModalService.open(DeleteModalComponent, {});
   modalRef.componentInstance.name = company.name;
   modalRef.componentInstance.entity = 'Company';
 
@@ -50,7 +50,7 @@ deleteCompany(company: Company) {
 
 ## OPTIONS
 ```ts
-this.modalService.open(DeleteModalComponent, {
+this.sauModalService.open(DeleteModalComponent, {
   size: 'lg',        // 'sm' | 'md' | 'lg', defaults to 'md'
   backdrop: 'static', // true | false | 'static' — 'static' keeps it open on outside click
   keyboard: false,    // whether Escape dismisses it, defaults to true

@@ -15,7 +15,7 @@ export class FeaturesComponent {
     {
       title: 'No host markup',
       description:
-        'No anchor component, no NgModule, no router-outlet-style placeholder. ModalService.open() creates the dialog and appends it to <body> on demand.',
+        'No anchor component, no NgModule, no router-outlet-style placeholder. SAUModalService.open() creates the dialog and appends it to <body> on demand.',
       icon: 'M4 6h16M4 12h16M4 18h16',
     },
     {

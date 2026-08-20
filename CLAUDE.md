@@ -3,7 +3,7 @@
 Contexto para trabajar en este repo. Es un workspace de Angular con dos proyectos, con la misma estructura que el repo hermano `table` (`@some-angular-utils/table`):
 
 - **`modal`** (`src/app`) — la landing page/showcase de la librería. No es un producto real, no tiene backend.
-- **`@some-angular-utils/modal`** (`projects/some-angular-utils/modal`) — la librería Angular publicable de verdad (`ModalService` + `DeleteModalComponent`).
+- **`@some-angular-utils/modal`** (`projects/some-angular-utils/modal`) — la librería Angular publicable de verdad (`SAUModalService` + `DeleteModalComponent`).
 
 ## Árbol del código
 
@@ -34,7 +34,7 @@ modal/
     └── src/
         ├── public-api.ts                       # exports públicos del paquete npm
         └── lib/
-            ├── modal.service.ts                # ModalService.open() — crea el contenedor con createComponent() y lo cuelga de <body>
+            ├── modal.service.ts                # SAUModalService.open() — crea el contenedor con createComponent() y lo cuelga de <body>
             ├── modal-ref.ts                     # ModalRef — componentInstance + result (Promise), close()/dismiss()
             ├── modal-options.ts                 # ModalOptions — size / backdrop / keyboard
             ├── modal-container/                 # componente interno: backdrop + diálogo centrado + host de contenido dinámico
@@ -42,7 +42,7 @@ modal/
             └── icons/                           # trash/xmark como componentes standalone (encapsulation por defecto, no None)
 ```
 
-## Cómo funciona `ModalService.open()`
+## Cómo funciona `SAUModalService.open()`
 
 No requiere ningún anchor/host en la app (nada de `<router-outlet>`-style placeholder ni NgModule). `open(Component, options)`:
 
@@ -69,7 +69,7 @@ npm run build:lib   # ng-packagr -> dist/some-angular-utils/modal
 
 ## Cómo funciona el editor de las demos en vivo (`src/app/components/demos`)
 
-Sigue el mismo patrón que el repo `table`: cada pestaña "js"/"css" tiene su propio mini editor de código (`src/app/components/code-editor`), enlazado a un string de configuración. Al editar (debounce ~600ms), el texto se evalúa con `new Function('"use strict"; return (' + texto + ');')()` — mismo modelo de confianza que un playground de JS (CodePen/StackBlitz), es intencional. El objeto resultante (`demo.parsed()`) alimenta el botón "Open modal" de cada pestaña, que llama a `modalService.open(DeleteModalComponent, { size, backdrop, keyboard })` y setea `componentInstance.name/entity`.
+Sigue el mismo patrón que el repo `table`: cada pestaña "js"/"css" tiene su propio mini editor de código (`src/app/components/code-editor`), enlazado a un string de configuración. Al editar (debounce ~600ms), el texto se evalúa con `new Function('"use strict"; return (' + texto + ');')()` — mismo modelo de confianza que un playground de JS (CodePen/StackBlitz), es intencional. El objeto resultante (`demo.parsed()`) alimenta el botón "Open modal" de cada pestaña, que llama a `sauModalService.open(DeleteModalComponent, { size, backdrop, keyboard })` y setea `componentInstance.name/entity`.
 
 La pestaña **"list"** es de tipo `interactive` (no tiene editor de código): es el caso de uso real, una tabla de compañías con un botón "Delete" por fila que abre el modal y, al confirmar, quita la fila de `listItems` (un signal mutado directamente, no derivado de config evaluada).
 

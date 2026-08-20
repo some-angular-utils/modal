@@ -4,7 +4,7 @@ import { DeleteModalComponent, ModalRef } from '@some-angular-utils/modal';
 @Component({
   selector: 'app-hero',
   imports: [DeleteModalComponent],
-  // The hero preview renders <sau-delete-modal> inline (not through ModalService) so it
+  // The hero preview renders <sau-delete-modal> inline (not through SAUModalService) so it
   // sits inside the mock browser card instead of a full-page overlay. DeleteModalComponent
   // injects ModalRef itself, so a throwaway instance is provided here just to satisfy that.
   providers: [{ provide: ModalRef, useValue: new ModalRef() }],

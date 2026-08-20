@@ -1,6 +1,6 @@
 import { Component, OnDestroy, Renderer2, WritableSignal, effect, inject, signal } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { DeleteModalComponent, ModalService } from '@some-angular-utils/modal';
+import { DeleteModalComponent, SAUModalService } from '@some-angular-utils/modal';
 import { CodeEditorComponent } from '../code-editor/code-editor';
 
 type DemoId = 'basic' | 'sizes' | 'backdrop' | 'list' | 'theme';
@@ -75,7 +75,7 @@ const INITIAL_LIST_ITEMS: ListItem[] = [
   templateUrl: './demos.html',
 })
 export class DemosComponent implements OnDestroy {
-  private modalService = inject(ModalService);
+  private sauModalService = inject(SAUModalService);
   private renderer = inject(Renderer2);
   private document = inject(DOCUMENT);
   private themeStyleEl = this.renderer.createElement('style') as HTMLStyleElement;
@@ -157,7 +157,7 @@ export class DemosComponent implements OnDestroy {
 
   openBasic(): void {
     const cfg = this.demos.find((d) => d.id === 'basic')!.parsed();
-    const modalRef = this.modalService.open(DeleteModalComponent, {});
+    const modalRef = this.sauModalService.open(DeleteModalComponent, {});
     modalRef.componentInstance.name = cfg.name;
     modalRef.componentInstance.entity = cfg.entity;
     modalRef.result.then(
@@ -168,7 +168,7 @@ export class DemosComponent implements OnDestroy {
 
   openSizes(): void {
     const cfg = this.demos.find((d) => d.id === 'sizes')!.parsed();
-    const modalRef = this.modalService.open(DeleteModalComponent, { size: cfg.size });
+    const modalRef = this.sauModalService.open(DeleteModalComponent, { size: cfg.size });
     modalRef.componentInstance.name = cfg.name;
     modalRef.componentInstance.entity = cfg.entity;
     modalRef.result.then(
@@ -179,7 +179,7 @@ export class DemosComponent implements OnDestroy {
 
   openBackdrop(): void {
     const cfg = this.demos.find((d) => d.id === 'backdrop')!.parsed();
-    const modalRef = this.modalService.open(DeleteModalComponent, { backdrop: cfg.backdrop, keyboard: cfg.keyboard });
+    const modalRef = this.sauModalService.open(DeleteModalComponent, { backdrop: cfg.backdrop, keyboard: cfg.keyboard });
     modalRef.componentInstance.name = cfg.name;
     modalRef.componentInstance.entity = cfg.entity;
     modalRef.result.then(
@@ -189,7 +189,7 @@ export class DemosComponent implements OnDestroy {
   }
 
   openThemed(): void {
-    const modalRef = this.modalService.open(DeleteModalComponent, {});
+    const modalRef = this.sauModalService.open(DeleteModalComponent, {});
     modalRef.componentInstance.name = 'Acme Corp';
     modalRef.componentInstance.entity = 'Company';
     modalRef.result.then(
@@ -199,7 +199,7 @@ export class DemosComponent implements OnDestroy {
   }
 
   deleteListItem(item: ListItem): void {
-    const modalRef = this.modalService.open(DeleteModalComponent, {});
+    const modalRef = this.sauModalService.open(DeleteModalComponent, {});
     modalRef.componentInstance.name = item.name;
     modalRef.componentInstance.entity = 'Company';
     modalRef.result.then(

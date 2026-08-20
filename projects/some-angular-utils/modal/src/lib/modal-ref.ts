@@ -1,5 +1,5 @@
 /**
- * Handle returned by `ModalService.open()`.
+ * Handle returned by `SAUModalService.open()`.
  *
  * Mirrors the classic `NgbModalRef` shape so existing call sites that do
  * `modalRef.componentInstance.x = y` and `modalRef.result.then(onConfirm, onCancel)`
@@ -23,7 +23,7 @@ export class ModalRef<T = unknown> {
     });
   }
 
-  /** @internal wired by ModalService once the modal's view exists in the DOM */
+  /** @internal wired by SAUModalService once the modal's view exists in the DOM */
   _bindTeardown(teardown: () => void): void {
     this.teardown = teardown;
   }

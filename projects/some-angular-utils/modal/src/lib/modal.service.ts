@@ -11,7 +11,7 @@ import { ModalRef } from './modal-ref';
  * container is created on demand and appended straight to `<body>`.
  */
 @Injectable({ providedIn: 'root' })
-export class ModalService {
+export class SAUModalService {
   private appRef = inject(ApplicationRef);
   private environmentInjector = inject(EnvironmentInjector);
   private injector = inject(Injector);
