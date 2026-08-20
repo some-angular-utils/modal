@@ -40,6 +40,10 @@ export class SAUModalService {
     // Lock background scroll while at least one modal is open (stacked opens share the lock).
     if (this.previousBodyOverflow === null) {
       this.previousBodyOverflow = this.document.body.style.overflow;
+
+      const scrollbarWidth = (this.document.defaultView?.innerWidth ?? 0) - this.document.documentElement.clientWidth;
+      this.document.body.style.width = `calc(100% - ${scrollbarWidth}px)`;
+
       this.document.body.style.overflow = 'hidden';
     }
 
@@ -60,13 +64,19 @@ export class SAUModalService {
     modalRef._bindTeardown(() => {
       backdropSub.unsubscribe();
       escSub.unsubscribe();
-      this.appRef.detachView(containerRef.hostView);
-      containerRef.destroy();
-      nativeElement.remove();
-      if (!this.document.querySelector('sau-modal')) {
-        this.document.body.style.overflow = this.previousBodyOverflow ?? '';
-        this.previousBodyOverflow = null;
-      }
+
+      // Play the exit transition before actually tearing down the DOM/view — close()/dismiss()
+      // still resolve immediately, this just delays the cleanup so the animation is visible.
+      containerRef.instance.animateClose().then(() => {
+        this.appRef.detachView(containerRef.hostView);
+        containerRef.destroy();
+        nativeElement.remove();
+        if (!this.document.querySelector('sau-modal')) {
+          this.document.body.style.overflow = this.previousBodyOverflow ?? '';
+          this.document.body.style.width = `100%`;
+          this.previousBodyOverflow = null;
+        }
+      });
     });
 
     return modalRef;

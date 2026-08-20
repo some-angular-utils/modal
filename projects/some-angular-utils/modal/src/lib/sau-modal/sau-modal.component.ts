@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, Output, ViewChild, ViewContainerRef, ViewEncapsulation, Input } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostBinding, HostListener, Output, ViewChild, ViewContainerRef, ViewEncapsulation, Input } from '@angular/core';
 
 @Component({
   selector: 'sau-modal',
@@ -8,6 +8,7 @@ import { Component, ElementRef, EventEmitter, HostListener, Output, ViewChild, V
     <div class="sau-modal-dialog"
       [class.sau-modal-size-sm]="size === 'sm'"
       [class.sau-modal-size-lg]="size === 'lg'"
+      [class.sau-modal-closing]="closing"
       role="dialog"
       aria-modal="true">
       <ng-container #contentHost></ng-container>
@@ -25,6 +26,10 @@ import { Component, ElementRef, EventEmitter, HostListener, Output, ViewChild, V
 
       position: fixed;
       inset: 0;
+      /* inset:0 only spans the layout viewport, which stops short of the native scrollbar
+         track in most Windows browsers — width:100vw pushes the right edge under it instead.
+         Safe to do without affecting page scroll: fixed elements don't add to document flow. */
+      width: 100dvw;
       z-index: 1000;
       display: flex;
       align-items: center;
@@ -33,10 +38,16 @@ import { Component, ElementRef, EventEmitter, HostListener, Output, ViewChild, V
       animation: sau-modal-fade-in .15s ease-out;
     }
 
+    sau-modal.sau-modal-closing {
+      animation: sau-modal-fade-out .15s ease-in forwards;
+      pointer-events: none;
+    }
+
     .sau-modal-backdrop {
       position: absolute;
       inset: 0;
       background: rgba(17, 24, 39, 0.5);
+      backdrop-filter: blur(0.2rem);
     }
 
     .sau-modal-dialog {
@@ -60,24 +71,43 @@ import { Component, ElementRef, EventEmitter, HostListener, Output, ViewChild, V
       max-width: 40rem;
     }
 
+    .sau-modal-dialog.sau-modal-closing {
+      animation: sau-modal-scale-out .15s ease-in forwards;
+    }
+
     @keyframes sau-modal-fade-in {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from { opacity: 0; backdrop-filter: blur(0rem); }
+      to { opacity: 1; backdrop-filter: blur(0.2rem); }
+    }
+
+    @keyframes sau-modal-fade-out {
+      from { opacity: 1; backdrop-filter: blur(0.2rem); }
+      to { opacity: 0; backdrop-filter: blur(0rem); }
     }
 
     @keyframes sau-modal-scale-in {
-      from { opacity: 0; transform: scale(0.95); }
+      from { opacity: 0; transform: scale(0.5); }
       to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes sau-modal-scale-out {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(0.5); }
     }
   `]
 })
 export class SAUModalComponent {
+  /** Matches the `.15s` CSS animation duration above — used as a fallback if `animationend` never fires. */
+  private static readonly CLOSE_ANIMATION_FALLBACK_MS = 250;
+
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
   @Input() backdrop: boolean | 'static' = true;
   @Input() keyboard = true;
 
   @Output() backdropClick = new EventEmitter<void>();
   @Output() escKey = new EventEmitter<void>();
+
+  @HostBinding('class.sau-modal-closing') closing = false;
 
   @ViewChild('contentHost', { read: ViewContainerRef, static: true }) contentHost!: ViewContainerRef;
 
@@ -98,5 +128,14 @@ export class SAUModalComponent {
     if (this.keyboard) {
       this.escKey.emit();
     }
+  }
+
+  /** Plays the closing transition and resolves once it's done (or after a fallback timeout). */
+  animateClose(): Promise<void> {
+    this.closing = true;
+    return new Promise<void>((resolve) => {
+      this.nativeElement.addEventListener('animationend', () => resolve(), { once: true });
+      setTimeout(resolve, SAUModalComponent.CLOSE_ANIMATION_FALLBACK_MS);
+    });
   }
 }
